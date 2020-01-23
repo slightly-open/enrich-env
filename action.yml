@@ -1,0 +1,8 @@
+name: Enrich env
+description: Adds useful environment variables
+runs:
+  using: node12
+  main: dist/index.js
+branding:
+  color: 'white'
+  icon: 'list'
