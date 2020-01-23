@@ -7762,6 +7762,10 @@ function run() {
         const vars = new Map([
             ...getBranch(github.context),
         ]);
+        const envPrefix = Object(core.getInput)('env-prefix');
+        for (const [key, value] of vars) {
+            Object(core.exportVariable)(`${envPrefix}${key}`, value);
+        }
     });
 }
 function handleError(err) {

@@ -3,6 +3,11 @@ description: Adds useful environment variables
 runs:
   using: node12
   main: dist/index.js
+inputs:
+  env-prefix:
+    description: Environment variable will be prefixed with provided value
+    required: true
+    default: X_
 branding:
   color: 'white'
   icon: 'list'
