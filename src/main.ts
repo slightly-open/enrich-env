@@ -9,6 +9,10 @@ async function run() {
   const vars = new Map<string, string>([
     ...getBranch(context),
   ])
+  const envPrefix = getInput('env-prefix')
+  for (const [key, value] of vars) {
+    exportVariable(`${envPrefix}${key}`, value)
+  }
 }
 
 function handleError(err: any) {
