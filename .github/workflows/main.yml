@@ -8,11 +8,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: slightly-open/enrich-env@master
-    - run: printenv
-      
-    - uses: slightly-open/enrich-env@master
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: ./ # Uses an action in the root directory
+    - run: printenv | sort
+
+    - uses: ./ # Uses an action in the root directory
       with:
         prefix_env: MY_
-    - run: printenv
-    
+    - run: printenv | sort
+
