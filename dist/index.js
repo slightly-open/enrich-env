@@ -7734,11 +7734,11 @@ function getBranch({ repo }) {
     if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
         return names;
     }
-    const branchRaw = GITHUB_REF.slice(BRANCH_PREFIX.length);
-    const branch = nameSanitized(branchRaw);
-    const branchTreeUrl = url(branch, repo.owner, repo.repo);
-    names.set('BRANCH_RAW', branchRaw);
+    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
+    const branchSlag = nameSanitized(branch);
+    const branchTreeUrl = url(branchSlag, repo.owner, repo.repo);
     names.set('BRANCH', branch);
+    names.set('BRANCH_SLAG', branchSlag);
     names.set('BRANCH_TREE_URL', branchTreeUrl);
     return names;
 }
