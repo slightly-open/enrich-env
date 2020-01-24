@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(745);
+/******/ 		return __webpack_require__(897);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -7700,87 +7700,6 @@ function sync (path, options) {
 
 /***/ }),
 
-/***/ 745:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __webpack_require__(470);
-
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __webpack_require__(469);
-
-// CONCATENATED MODULE: ./src/refUtils.ts
-const DELIMITER = '-';
-const BASE_GITHUB_URL = 'https://github.com';
-function nameSanitized(rawName) {
-    return rawName.replace(/\W_\//, DELIMITER);
-}
-function url(ref, ownerOrRepo, repoName) {
-    const repo = typeof repoName === 'string'
-        ? `${ownerOrRepo}/${repoName}`
-        : ownerOrRepo;
-    return `${BASE_GITHUB_URL}/${repo}/tree/${ref}`;
-}
-
-// CONCATENATED MODULE: ./src/branch.ts
-
-const { GITHUB_REF, } = process.env;
-const BRANCH_PREFIX = 'refs/heads/';
-function getBranch({ repo }) {
-    const names = new Map();
-    if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
-        return names;
-    }
-    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
-    const branchSlag = nameSanitized(branch);
-    const branchTreeUrl = url(branchSlag, repo.owner, repo.repo);
-    names.set('BRANCH', branch);
-    names.set('BRANCH_SLAG', branchSlag);
-    names.set('BRANCH_TREE_URL', branchTreeUrl);
-    return names;
-}
-
-// CONCATENATED MODULE: ./src/main.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-process.on('unhandledRejection', handleError);
-run().catch(handleError);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const vars = new Map([
-            ...getBranch(github.context),
-        ]);
-        const envPrefix = Object(core.getInput)('env-prefix');
-        for (const [key, value] of vars) {
-            Object(core.exportVariable)(`${envPrefix}${key}`, value);
-        }
-    });
-}
-function handleError(err) {
-    console.error(err);
-    if (err && err.message) {
-        Object(core.setFailed)(err.message);
-    }
-    else {
-        Object(core.setFailed)(`Unhandled error: ${err}`);
-    }
-}
-
-
-/***/ }),
-
 /***/ 747:
 /***/ (function(module) {
 
@@ -10429,6 +10348,107 @@ function set(object, path, value) {
 }
 
 module.exports = set;
+
+
+/***/ }),
+
+/***/ 897:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(470);
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __webpack_require__(469);
+
+// CONCATENATED MODULE: ./src/refUtils.ts
+const DELIMITER = '-';
+const BASE_GITHUB_URL = 'https://github.com';
+function nameSanitized(rawName) {
+    return rawName.replace(/\W_\//, DELIMITER);
+}
+function url(ref, ownerOrRepo, repoName) {
+    const repo = typeof repoName === 'string'
+        ? `${ownerOrRepo}/${repoName}`
+        : ownerOrRepo;
+    return `${BASE_GITHUB_URL}/${repo}/tree/${ref}`;
+}
+
+// CONCATENATED MODULE: ./src/branch.ts
+
+const { GITHUB_REF, } = process.env;
+const BRANCH_PREFIX = 'refs/heads/';
+function getBranch({ repo }) {
+    const names = new Map();
+    if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
+        return names;
+    }
+    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
+    const branchSlag = nameSanitized(branch);
+    const branchTreeUrl = url(branchSlag, repo.owner, repo.repo);
+    names.set('BRANCH', branch);
+    names.set('BRANCH_SLAG', branchSlag);
+    names.set('BRANCH_TREE_URL', branchTreeUrl);
+    return names;
+}
+
+// CONCATENATED MODULE: ./src/tag.ts
+
+const { GITHUB_REF: tag_GITHUB_REF, } = process.env;
+const TAG_PREFIX = 'refs/tags/';
+function getTag({ repo }) {
+    const names = new Map();
+    if (tag_GITHUB_REF === undefined || !tag_GITHUB_REF.startsWith(TAG_PREFIX)) {
+        return names;
+    }
+    const tag = tag_GITHUB_REF.slice(TAG_PREFIX.length);
+    const tagSlag = nameSanitized(tag);
+    const tagTreeUrl = url(tagSlag, repo.owner, repo.repo);
+    names.set('TAG', tag);
+    names.set('TAG_SLAG', tagSlag);
+    names.set('TAG_TREE_URL', tagTreeUrl);
+    return names;
+}
+
+// CONCATENATED MODULE: ./src/main.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+process.on('unhandledRejection', handleError);
+run().catch(handleError);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const vars = new Map([
+            ...getBranch(github.context),
+            ...getTag(github.context),
+        ]);
+        const envPrefix = Object(core.getInput)('env-prefix');
+        for (const [key, value] of vars) {
+            Object(core.exportVariable)(`${envPrefix}${key}`, value);
+        }
+    });
+}
+function handleError(err) {
+    console.error(err);
+    if (err && err.message) {
+        Object(core.setFailed)(err.message);
+    }
+    else {
+        Object(core.setFailed)(`Unhandled error: ${err}`);
+    }
+}
 
 
 /***/ }),
