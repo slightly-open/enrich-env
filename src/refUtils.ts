@@ -2,7 +2,7 @@ const DELIMITER = '-'
 const BASE_GITHUB_URL = 'https://github.com'
 
 export function nameSanitized(rawName: string): string {
-  return rawName.replace(/\W_\//, DELIMITER)
+  return rawName.replace(/[\W_\/]+/g, DELIMITER).toLowerCase()
 }
 
 export function url(ref: string, repo: string): string

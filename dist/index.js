@@ -10461,7 +10461,7 @@ var github = __webpack_require__(469);
 const DELIMITER = '-';
 const BASE_GITHUB_URL = 'https://github.com';
 function nameSanitized(rawName) {
-    return rawName.replace(/\W_\//, DELIMITER);
+    return rawName.replace(/[\W_\/]+/g, DELIMITER).toLowerCase();
 }
 function url(ref, ownerOrRepo, repoName) {
     const repo = typeof repoName === 'string'
