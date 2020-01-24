@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(899);
+/******/ 		return __webpack_require__(686);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -1691,7 +1691,7 @@ module.exports = {"name":"@octokit/rest","version":"16.37.0","publishConfig":{"a
 
 module.exports = octokitRegisterEndpoints;
 
-const registerEndpoints = __webpack_require__(961);
+const registerEndpoints = __webpack_require__(899);
 
 function octokitRegisterEndpoints(octokit) {
   octokit.registerEndpoints = registerEndpoints.bind(null, octokit);
@@ -7522,6 +7522,172 @@ module.exports = function btoa(str) {
 
 /***/ }),
 
+/***/ 686:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(470);
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var lib_github = __webpack_require__(469);
+
+// CONCATENATED MODULE: ./src/refUtils.ts
+const DELIMITER = '-';
+const BASE_GITHUB_URL = 'https://github.com';
+function nameSanitized(rawName) {
+    return rawName.replace(/[\W_\/]+/g, DELIMITER).toLowerCase();
+}
+function url(ref, ownerOrRepo, repoName) {
+    const repo = typeof repoName === 'string'
+        ? `${ownerOrRepo}/${repoName}`
+        : ownerOrRepo;
+    return `${BASE_GITHUB_URL}/${repo}/tree/${ref}`;
+}
+
+// CONCATENATED MODULE: ./src/branch.ts
+
+const { GITHUB_REF, } = process.env;
+const BRANCH_PREFIX = 'refs/heads/';
+function getBranch({ repo }) {
+    const names = new Map();
+    if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
+        return names;
+    }
+    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
+    const branchSlag = nameSanitized(branch);
+    const branchTreeUrl = url(branchSlag, repo.owner, repo.repo);
+    names.set('BRANCH', branch);
+    names.set('BRANCH_SLAG', branchSlag);
+    names.set('BRANCH_TREE_URL', branchTreeUrl);
+    return names;
+}
+
+// CONCATENATED MODULE: ./src/tag.ts
+
+const { GITHUB_REF: tag_GITHUB_REF, } = process.env;
+const TAG_PREFIX = 'refs/tags/';
+function getTag({ repo }) {
+    const names = new Map();
+    if (tag_GITHUB_REF === undefined || !tag_GITHUB_REF.startsWith(TAG_PREFIX)) {
+        return names;
+    }
+    const tag = tag_GITHUB_REF.slice(TAG_PREFIX.length);
+    const tagSlag = nameSanitized(tag);
+    const tagTreeUrl = url(tagSlag, repo.owner, repo.repo);
+    names.set('TAG', tag);
+    names.set('TAG_SLAG', tagSlag);
+    names.set('TAG_TREE_URL', tagTreeUrl);
+    return names;
+}
+
+// CONCATENATED MODULE: ./src/pr.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+const { GITHUB_REF: pr_GITHUB_REF, GITHUB_SHA, } = process.env;
+const PR_PREFIX = 'refs/pull/';
+function getPrNumber(repo, gh) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pr_GITHUB_REF !== undefined && pr_GITHUB_REF.startsWith(PR_PREFIX)) {
+            const [, , prId,] = pr_GITHUB_REF.split('/');
+            return prId;
+        }
+        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign(Object.assign({}, repo), { commit_sha: GITHUB_SHA }));
+        return _c = (_b = (_a = pr) === null || _a === void 0 ? void 0 : _a.number) === null || _b === void 0 ? void 0 : _b.toString(), (_c !== null && _c !== void 0 ? _c : null);
+    });
+}
+function getPR(prNumber, repo) {
+    const names = new Map();
+    if (prNumber === null) {
+        return name;
+    }
+    const prSlag = `pr-${prNumber}`;
+    const prTreeUrl = url(prSlag, repo.owner, repo.repo);
+    names.set('PR_SLAG', prSlag);
+    names.set('PR_URL', prTreeUrl.replace('/tree', ''));
+    return names;
+}
+
+// CONCATENATED MODULE: ./src/check.ts
+var check_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const { GITHUB_REF: check_GITHUB_REF, } = process.env;
+function check({ repo }, gh) {
+    return check_awaiter(this, void 0, void 0, function* () {
+        const { data: suites } = yield gh.checks.listSuitesForRef(Object.assign(Object.assign({}, repo), { ref: check_GITHUB_REF }));
+        const { data: checks } = yield gh.checks.listForRef(Object.assign(Object.assign({}, repo), { ref: check_GITHUB_REF }));
+        console.log(suites, checks);
+        const names = new Map();
+        return names;
+    });
+}
+
+// CONCATENATED MODULE: ./src/main.ts
+var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+process.on('unhandledRejection', handleError);
+run().catch(handleError);
+function run() {
+    return main_awaiter(this, void 0, void 0, function* () {
+        const envPrefix = Object(core.getInput)('env-prefix');
+        const token = Object(core.getInput)('github-token');
+        const github = new lib_github.GitHub(token, {});
+        const pr = yield getPrNumber(lib_github.context.repo, github);
+        const vars = new Map([
+            ...getBranch(lib_github.context),
+            ...getTag(lib_github.context),
+            ...yield getPR(pr, lib_github.context.repo),
+            ...yield check(lib_github.context, github),
+        ]);
+        for (const [key, value] of vars) {
+            Object(core.exportVariable)(`${envPrefix}${key}`, value);
+        }
+    });
+}
+function handleError(err) {
+    console.error(err);
+    if (err && err.message) {
+        Object(core.setFailed)(err.message);
+    }
+    else {
+        Object(core.setFailed)(`Unhandled error: ${err}`);
+    }
+}
+
+
+/***/ }),
+
 /***/ 692:
 /***/ (function(__unusedmodule, exports) {
 
@@ -10446,143 +10612,105 @@ exports.withCustomRequest = withCustomRequest;
 /***/ }),
 
 /***/ 899:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
+module.exports = registerEndpoints;
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __webpack_require__(470);
+const { Deprecation } = __webpack_require__(692);
 
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var lib_github = __webpack_require__(469);
-
-// CONCATENATED MODULE: ./src/refUtils.ts
-const DELIMITER = '-';
-const BASE_GITHUB_URL = 'https://github.com';
-function nameSanitized(rawName) {
-    return rawName.replace(/[\W_\/]+/g, DELIMITER).toLowerCase();
-}
-function url(ref, ownerOrRepo, repoName) {
-    const repo = typeof repoName === 'string'
-        ? `${ownerOrRepo}/${repoName}`
-        : ownerOrRepo;
-    return `${BASE_GITHUB_URL}/${repo}/tree/${ref}`;
-}
-
-// CONCATENATED MODULE: ./src/branch.ts
-
-const { GITHUB_REF, } = process.env;
-const BRANCH_PREFIX = 'refs/heads/';
-function getBranch({ repo }) {
-    const names = new Map();
-    if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
-        return names;
+function registerEndpoints(octokit, routes) {
+  Object.keys(routes).forEach(namespaceName => {
+    if (!octokit[namespaceName]) {
+      octokit[namespaceName] = {};
     }
-    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
-    const branchSlag = nameSanitized(branch);
-    const branchTreeUrl = url(branchSlag, repo.owner, repo.repo);
-    names.set('BRANCH', branch);
-    names.set('BRANCH_SLAG', branchSlag);
-    names.set('BRANCH_TREE_URL', branchTreeUrl);
-    return names;
-}
 
-// CONCATENATED MODULE: ./src/tag.ts
+    Object.keys(routes[namespaceName]).forEach(apiName => {
+      const apiOptions = routes[namespaceName][apiName];
 
-const { GITHUB_REF: tag_GITHUB_REF, } = process.env;
-const TAG_PREFIX = 'refs/tags/';
-function getTag({ repo }) {
-    const names = new Map();
-    if (tag_GITHUB_REF === undefined || !tag_GITHUB_REF.startsWith(TAG_PREFIX)) {
-        return names;
-    }
-    const tag = tag_GITHUB_REF.slice(TAG_PREFIX.length);
-    const tagSlag = nameSanitized(tag);
-    const tagTreeUrl = url(tagSlag, repo.owner, repo.repo);
-    names.set('TAG', tag);
-    names.set('TAG_SLAG', tagSlag);
-    names.set('TAG_TREE_URL', tagTreeUrl);
-    return names;
-}
+      const endpointDefaults = ["method", "url", "headers"].reduce(
+        (map, key) => {
+          if (typeof apiOptions[key] !== "undefined") {
+            map[key] = apiOptions[key];
+          }
 
-// CONCATENATED MODULE: ./src/pr.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+          return map;
+        },
+        {}
+      );
+
+      endpointDefaults.request = {
+        validate: apiOptions.params
+      };
+
+      let request = octokit.request.defaults(endpointDefaults);
+
+      // patch request & endpoint methods to support deprecated parameters.
+      // Not the most elegant solution, but we don’t want to move deprecation
+      // logic into octokit/endpoint.js as it’s out of scope
+      const hasDeprecatedParam = Object.keys(apiOptions.params || {}).find(
+        key => apiOptions.params[key].deprecated
+      );
+      if (hasDeprecatedParam) {
+        const patch = patchForDeprecation.bind(null, octokit, apiOptions);
+        request = patch(
+          octokit.request.defaults(endpointDefaults),
+          `.${namespaceName}.${apiName}()`
+        );
+        request.endpoint = patch(
+          request.endpoint,
+          `.${namespaceName}.${apiName}.endpoint()`
+        );
+        request.endpoint.merge = patch(
+          request.endpoint.merge,
+          `.${namespaceName}.${apiName}.endpoint.merge()`
+        );
+      }
+
+      if (apiOptions.deprecated) {
+        octokit[namespaceName][apiName] = function deprecatedEndpointMethod() {
+          octokit.log.warn(
+            new Deprecation(`[@octokit/rest] ${apiOptions.deprecated}`)
+          );
+          octokit[namespaceName][apiName] = request;
+          return request.apply(null, arguments);
+        };
+
+        return;
+      }
+
+      octokit[namespaceName][apiName] = request;
     });
-};
+  });
+}
 
-const { GITHUB_REF: pr_GITHUB_REF, GITHUB_SHA, } = process.env;
-const PR_PREFIX = 'refs/pull/';
-function getPrNumber(repo, gh) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pr_GITHUB_REF !== undefined && pr_GITHUB_REF.startsWith(PR_PREFIX)) {
-            const [, , prId,] = pr_GITHUB_REF.split('/');
-            return prId;
+function patchForDeprecation(octokit, apiOptions, method, methodName) {
+  const patchedMethod = options => {
+    options = Object.assign({}, options);
+
+    Object.keys(options).forEach(key => {
+      if (apiOptions.params[key] && apiOptions.params[key].deprecated) {
+        const aliasKey = apiOptions.params[key].alias;
+
+        octokit.log.warn(
+          new Deprecation(
+            `[@octokit/rest] "${key}" parameter is deprecated for "${methodName}". Use "${aliasKey}" instead`
+          )
+        );
+
+        if (!(aliasKey in options)) {
+          options[aliasKey] = options[key];
         }
-        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign(Object.assign({}, repo), { commit_sha: GITHUB_SHA }));
-        return _c = (_b = (_a = pr) === null || _a === void 0 ? void 0 : _a.number) === null || _b === void 0 ? void 0 : _b.toString(), (_c !== null && _c !== void 0 ? _c : null);
+        delete options[key];
+      }
     });
-}
-function getPR(prNumber, repo) {
-    const names = new Map();
-    if (prNumber === null) {
-        return name;
-    }
-    const prSlag = `pr-${prNumber}`;
-    const prTreeUrl = url(prSlag, repo.owner, repo.repo);
-    names.set('PR_SLAG', prSlag);
-    names.set('PR_URL', prTreeUrl.replace('/tree', ''));
-    return names;
-}
 
-// CONCATENATED MODULE: ./src/main.ts
-var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+    return method(options);
+  };
+  Object.keys(method).forEach(key => {
+    patchedMethod[key] = method[key];
+  });
 
-
-
-
-
-process.on('unhandledRejection', handleError);
-run().catch(handleError);
-function run() {
-    return main_awaiter(this, void 0, void 0, function* () {
-        const envPrefix = Object(core.getInput)('env-prefix');
-        const token = Object(core.getInput)('github-token');
-        const github = new lib_github.GitHub(token, {});
-        const pr = yield getPrNumber(lib_github.context.repo, github);
-        const vars = new Map([
-            ...getBranch(lib_github.context),
-            ...getTag(lib_github.context),
-            ...yield getPR(pr, lib_github.context.repo),
-        ]);
-        for (const [key, value] of vars) {
-            Object(core.exportVariable)(`${envPrefix}${key}`, value);
-        }
-    });
-}
-function handleError(err) {
-    console.error(err);
-    if (err && err.message) {
-        Object(core.setFailed)(err.message);
-    }
-    else {
-        Object(core.setFailed)(`Unhandled error: ${err}`);
-    }
+  return patchedMethod;
 }
 
 
@@ -11016,111 +11144,6 @@ module.exports.sync = (cmd, args, opts) => {
 };
 
 module.exports.shellSync = (cmd, opts) => handleShell(module.exports.sync, cmd, opts);
-
-
-/***/ }),
-
-/***/ 961:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-module.exports = registerEndpoints;
-
-const { Deprecation } = __webpack_require__(692);
-
-function registerEndpoints(octokit, routes) {
-  Object.keys(routes).forEach(namespaceName => {
-    if (!octokit[namespaceName]) {
-      octokit[namespaceName] = {};
-    }
-
-    Object.keys(routes[namespaceName]).forEach(apiName => {
-      const apiOptions = routes[namespaceName][apiName];
-
-      const endpointDefaults = ["method", "url", "headers"].reduce(
-        (map, key) => {
-          if (typeof apiOptions[key] !== "undefined") {
-            map[key] = apiOptions[key];
-          }
-
-          return map;
-        },
-        {}
-      );
-
-      endpointDefaults.request = {
-        validate: apiOptions.params
-      };
-
-      let request = octokit.request.defaults(endpointDefaults);
-
-      // patch request & endpoint methods to support deprecated parameters.
-      // Not the most elegant solution, but we don’t want to move deprecation
-      // logic into octokit/endpoint.js as it’s out of scope
-      const hasDeprecatedParam = Object.keys(apiOptions.params || {}).find(
-        key => apiOptions.params[key].deprecated
-      );
-      if (hasDeprecatedParam) {
-        const patch = patchForDeprecation.bind(null, octokit, apiOptions);
-        request = patch(
-          octokit.request.defaults(endpointDefaults),
-          `.${namespaceName}.${apiName}()`
-        );
-        request.endpoint = patch(
-          request.endpoint,
-          `.${namespaceName}.${apiName}.endpoint()`
-        );
-        request.endpoint.merge = patch(
-          request.endpoint.merge,
-          `.${namespaceName}.${apiName}.endpoint.merge()`
-        );
-      }
-
-      if (apiOptions.deprecated) {
-        octokit[namespaceName][apiName] = function deprecatedEndpointMethod() {
-          octokit.log.warn(
-            new Deprecation(`[@octokit/rest] ${apiOptions.deprecated}`)
-          );
-          octokit[namespaceName][apiName] = request;
-          return request.apply(null, arguments);
-        };
-
-        return;
-      }
-
-      octokit[namespaceName][apiName] = request;
-    });
-  });
-}
-
-function patchForDeprecation(octokit, apiOptions, method, methodName) {
-  const patchedMethod = options => {
-    options = Object.assign({}, options);
-
-    Object.keys(options).forEach(key => {
-      if (apiOptions.params[key] && apiOptions.params[key].deprecated) {
-        const aliasKey = apiOptions.params[key].alias;
-
-        octokit.log.warn(
-          new Deprecation(
-            `[@octokit/rest] "${key}" parameter is deprecated for "${methodName}". Use "${aliasKey}" instead`
-          )
-        );
-
-        if (!(aliasKey in options)) {
-          options[aliasKey] = options[key];
-        }
-        delete options[key];
-      }
-    });
-
-    return method(options);
-  };
-  Object.keys(method).forEach(key => {
-    patchedMethod[key] = method[key];
-  });
-
-  return patchedMethod;
-}
 
 
 /***/ }),

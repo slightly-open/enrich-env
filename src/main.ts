@@ -3,6 +3,7 @@ import { context, GitHub } from '@actions/github'
 import { getBranch } from './branch'
 import { getTag } from './tag'
 import { getPR, getPrNumber } from './pr'
+import { check } from './check'
 
 process.on('unhandledRejection', handleError)
 run().catch(handleError)
@@ -16,6 +17,7 @@ async function run() {
     ...getBranch(context),
     ...getTag(context),
     ...await getPR(pr, context.repo),
+    ...await check(context, github),
   ])
   for (const [key, value] of vars) {
     exportVariable(`${envPrefix}${key}`, value)
