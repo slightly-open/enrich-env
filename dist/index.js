@@ -10533,10 +10533,8 @@ function getPR({ sha, repo }, gh) {
 }
 function buildVars(prNumber, repo) {
     const names = new Map();
-    const pr = `pull/${prNumber}`;
-    const prSlag = nameSanitized(pr);
+    const prSlag = `pr-${prNumber}`;
     const prTreeUrl = url(prSlag, repo.owner, repo.repo);
-    names.set('PR', pr);
     names.set('PR_SLAG', prSlag);
     names.set('PR_URL', prTreeUrl.replace('/tree', ''));
     return names;

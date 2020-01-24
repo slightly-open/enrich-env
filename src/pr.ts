@@ -31,11 +31,9 @@ function buildVars(
   prNumber: string, repo: Context['repo'],
 ): Map<string, string> {
   const names = new Map<string, string>();
-  const pr = `pull/${prNumber}`
-  const prSlag = nameSanitized(pr)
+  const prSlag = `pr-${prNumber}`
   const prTreeUrl = url(prSlag, repo.owner, repo.repo)
 
-  names.set('PR', pr)
   names.set('PR_SLAG', prSlag)
   names.set('PR_URL', prTreeUrl.replace('/tree', ''))
 

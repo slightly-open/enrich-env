@@ -12,10 +12,16 @@ jobs:
       uses: actions/checkout@v2
 
     - uses: ./ # Uses an action in the root directory
+      with:
+        github-token: ${{ github.token }}
     - run: printenv | sort
 
     - uses: ./ # Uses an action in the root directory
       with:
+        github-token: ${{ github.token }}
         prefix_env: MY_
     - run: printenv | sort
+
+    - name: conditional
+      run: echo ${{ env.X_PR }}
 
