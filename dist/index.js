@@ -10455,7 +10455,7 @@ __webpack_require__.r(__webpack_exports__);
 var core = __webpack_require__(470);
 
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __webpack_require__(469);
+var lib_github = __webpack_require__(469);
 
 // CONCATENATED MODULE: ./src/refUtils.ts
 const DELIMITER = '-';
@@ -10507,16 +10507,33 @@ function getTag({ repo }) {
 }
 
 // CONCATENATED MODULE: ./src/pr.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 const { GITHUB_REF: pr_GITHUB_REF, } = process.env;
 const PR_PREFIX = 'refs/pull/';
-function getPR({ repo }) {
+function getPR({ sha, repo }, gh) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pr_GITHUB_REF !== undefined && pr_GITHUB_REF.startsWith(PR_PREFIX)) {
+            const [, , prId,] = pr_GITHUB_REF.split('/');
+            return buildVars(prId, repo);
+        }
+        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign({}, repo, { commit_sha: sha }));
+        if (pr !== undefined) {
+            return buildVars(`${pr.number}`, repo);
+        }
+        return new Map();
+    });
+}
+function buildVars(prNumber, repo) {
     const names = new Map();
-    if (pr_GITHUB_REF === undefined || !pr_GITHUB_REF.startsWith(PR_PREFIX)) {
-        return names;
-    }
-    const [, , prId,] = pr_GITHUB_REF.split('/');
-    const pr = `pull/${prId}`;
+    const pr = `pull/${prNumber}`;
     const prSlag = nameSanitized(pr);
     const prTreeUrl = url(prSlag, repo.owner, repo.repo);
     names.set('PR', pr);
@@ -10526,7 +10543,7 @@ function getPR({ repo }) {
 }
 
 // CONCATENATED MODULE: ./src/main.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -10542,13 +10559,15 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 process.on('unhandledRejection', handleError);
 run().catch(handleError);
 function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const vars = new Map([
-            ...getBranch(github.context),
-            ...getTag(github.context),
-            ...getPR(github.context),
-        ]);
+    return main_awaiter(this, void 0, void 0, function* () {
         const envPrefix = Object(core.getInput)('env-prefix');
+        const token = Object(core.getInput)('github-token');
+        const github = new lib_github.GitHub(token, {});
+        const vars = new Map([
+            ...getBranch(lib_github.context),
+            ...getTag(lib_github.context),
+            ...yield getPR(lib_github.context, github),
+        ]);
         for (const [key, value] of vars) {
             Object(core.exportVariable)(`${envPrefix}${key}`, value);
         }
