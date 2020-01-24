@@ -10508,31 +10508,33 @@ function getTag({ repo }) {
 
 // CONCATENATED MODULE: ./src/pr.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 
-const { GITHUB_REF: pr_GITHUB_REF, } = process.env;
+const { GITHUB_REF: pr_GITHUB_REF, GITHUB_SHA, } = process.env;
 const PR_PREFIX = 'refs/pull/';
-function getPR({ sha, repo }, gh) {
+function getPrNumber(repo, gh) {
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         if (pr_GITHUB_REF !== undefined && pr_GITHUB_REF.startsWith(PR_PREFIX)) {
             const [, , prId,] = pr_GITHUB_REF.split('/');
-            return buildVars(prId, repo);
+            return prId;
         }
-        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign({}, repo, { commit_sha: sha }));
-        if (pr !== undefined) {
-            return buildVars(`${pr.number}`, repo);
-        }
-        return new Map();
+        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign(Object.assign({}, repo), { commit_sha: GITHUB_SHA }));
+        return _c = (_b = (_a = pr) === null || _a === void 0 ? void 0 : _a.number) === null || _b === void 0 ? void 0 : _b.toString(), (_c !== null && _c !== void 0 ? _c : null);
     });
 }
-function buildVars(prNumber, repo) {
+function getPR(prNumber, repo) {
     const names = new Map();
+    if (prNumber === null) {
+        return name;
+    }
     const prSlag = `pr-${prNumber}`;
     const prTreeUrl = url(prSlag, repo.owner, repo.repo);
     names.set('PR_SLAG', prSlag);
@@ -10542,10 +10544,11 @@ function buildVars(prNumber, repo) {
 
 // CONCATENATED MODULE: ./src/main.ts
 var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -10561,10 +10564,11 @@ function run() {
         const envPrefix = Object(core.getInput)('env-prefix');
         const token = Object(core.getInput)('github-token');
         const github = new lib_github.GitHub(token, {});
+        const pr = yield getPrNumber(lib_github.context.repo, github);
         const vars = new Map([
             ...getBranch(lib_github.context),
             ...getTag(lib_github.context),
-            ...yield getPR(lib_github.context, github),
+            ...yield getPR(pr, lib_github.context.repo),
         ]);
         for (const [key, value] of vars) {
             Object(core.exportVariable)(`${envPrefix}${key}`, value);

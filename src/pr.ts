@@ -1,36 +1,37 @@
-import { nameSanitized, url } from './refUtils';
-import { Context } from '@actions/github/lib/context';
-import { GitHub } from '@actions/github';
+import { url } from './refUtils'
+import { Context } from '@actions/github/lib/context'
+import { GitHub } from '@actions/github'
 
 const {
   GITHUB_REF,
+  GITHUB_SHA,
 } = process.env
 
 const PR_PREFIX = 'refs/pull/'
 
-export async function getPR(
-  { sha, repo }: Context, gh: GitHub,
-): Promise<Map<string, string>> {
+export async function getPrNumber(
+  repo: Context['repo'], gh: GitHub,
+): Promise<string | null> {
   if (GITHUB_REF !== undefined && GITHUB_REF.startsWith(PR_PREFIX)) {
     const [, , prId,] = GITHUB_REF.split('/')
-    return buildVars(prId, repo)
+    return prId
   }
   const { data: [pr] } = await gh.repos.listPullRequestsAssociatedWithCommit({
     ...repo,
-    commit_sha: sha,
+    commit_sha: GITHUB_SHA!,
   })
-
-  if (pr !== undefined) {
-    return buildVars(`${pr.number}`, repo)
-  }
-
-  return new Map<string, string>()
+  return pr?.number?.toString() ?? null
 }
 
-function buildVars(
-  prNumber: string, repo: Context['repo'],
+export function getPR(
+  prNumber: string | null, repo: Context['repo'],
 ): Map<string, string> {
-  const names = new Map<string, string>();
+  const names = new Map<string, string>()
+
+  if (prNumber === null) {
+    return name
+  }
+
   const prSlag = `pr-${prNumber}`
   const prTreeUrl = url(prSlag, repo.owner, repo.repo)
 
