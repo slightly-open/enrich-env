@@ -10,7 +10,8 @@
   "license": "MIT",
   "devDependencies": {
     "@zeit/ncc": "0.21.0",
-    "husky": "4.2.0"
+    "husky": "4.2.0",
+    "typescript": "3.7.5"
   },
   "dependencies": {
     "@actions/core": "1.2.1",
