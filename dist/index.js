@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(686);
+/******/ 		return __webpack_require__(131);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -1440,6 +1440,48 @@ module.exports = uniq;
 /***/ (function(module) {
 
 module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 131:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(470);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(469);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+process.on('unhandledRejection', handleError);
+run().catch(handleError);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const token = Object(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)('github-token');
+        const github = new _actions_github__WEBPACK_IMPORTED_MODULE_1__.GitHub(token, {});
+        console.log(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context);
+    });
+}
+function handleError(err) {
+    console.error(err);
+    if (err && err.message) {
+        Object(_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(err.message);
+    }
+    else {
+        Object(_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(`Unhandled error: ${err}`);
+    }
+}
+
 
 /***/ }),
 
@@ -7522,172 +7564,6 @@ module.exports = function btoa(str) {
 
 /***/ }),
 
-/***/ 686:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __webpack_require__(470);
-
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var lib_github = __webpack_require__(469);
-
-// CONCATENATED MODULE: ./src/refUtils.ts
-const DELIMITER = '-';
-const BASE_GITHUB_URL = 'https://github.com';
-function nameSanitized(rawName) {
-    return rawName.replace(/[\W_\/]+/g, DELIMITER).toLowerCase();
-}
-function url(ref, ownerOrRepo, repoName) {
-    const repo = typeof repoName === 'string'
-        ? `${ownerOrRepo}/${repoName}`
-        : ownerOrRepo;
-    return `${BASE_GITHUB_URL}/${repo}/tree/${ref}`;
-}
-
-// CONCATENATED MODULE: ./src/branch.ts
-
-const { GITHUB_REF, } = process.env;
-const BRANCH_PREFIX = 'refs/heads/';
-function getBranch({ repo }) {
-    const names = new Map();
-    if (GITHUB_REF === undefined || !GITHUB_REF.startsWith(BRANCH_PREFIX)) {
-        return names;
-    }
-    const branch = GITHUB_REF.slice(BRANCH_PREFIX.length);
-    const branchSlag = nameSanitized(branch);
-    const branchTreeUrl = url(branch, repo.owner, repo.repo);
-    names.set('BRANCH', branch);
-    names.set('BRANCH_SLAG', branchSlag);
-    names.set('BRANCH_TREE_URL', branchTreeUrl);
-    return names;
-}
-
-// CONCATENATED MODULE: ./src/tag.ts
-
-const { GITHUB_REF: tag_GITHUB_REF, } = process.env;
-const TAG_PREFIX = 'refs/tags/';
-function getTag({ repo }) {
-    const names = new Map();
-    if (tag_GITHUB_REF === undefined || !tag_GITHUB_REF.startsWith(TAG_PREFIX)) {
-        return names;
-    }
-    const tag = tag_GITHUB_REF.slice(TAG_PREFIX.length);
-    const tagSlag = nameSanitized(tag);
-    const tagTreeUrl = url(tagSlag, repo.owner, repo.repo);
-    names.set('TAG', tag);
-    names.set('TAG_SLAG', tagSlag);
-    names.set('TAG_TREE_URL', tagTreeUrl);
-    return names;
-}
-
-// CONCATENATED MODULE: ./src/pr.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-const { GITHUB_REF: pr_GITHUB_REF, GITHUB_SHA, } = process.env;
-const PR_PREFIX = 'refs/pull/';
-function getPrNumber(repo, gh) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pr_GITHUB_REF !== undefined && pr_GITHUB_REF.startsWith(PR_PREFIX)) {
-            const [, , prId,] = pr_GITHUB_REF.split('/');
-            return prId;
-        }
-        const { data: [pr] } = yield gh.repos.listPullRequestsAssociatedWithCommit(Object.assign(Object.assign({}, repo), { commit_sha: GITHUB_SHA }));
-        return _c = (_b = (_a = pr) === null || _a === void 0 ? void 0 : _a.number) === null || _b === void 0 ? void 0 : _b.toString(), (_c !== null && _c !== void 0 ? _c : null);
-    });
-}
-function getPR(prNumber, repo) {
-    const names = new Map();
-    if (prNumber === null) {
-        return name;
-    }
-    const prSlag = `pr-${prNumber}`;
-    const prTreeUrl = url(prSlag, repo.owner, repo.repo);
-    names.set('PR_SLAG', prSlag);
-    names.set('PR_URL', prTreeUrl.replace('/tree', ''));
-    return names;
-}
-
-// CONCATENATED MODULE: ./src/check.ts
-var check_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-const { GITHUB_REF: check_GITHUB_REF, } = process.env;
-function check({ repo }, gh) {
-    return check_awaiter(this, void 0, void 0, function* () {
-        const { data: suites } = yield gh.checks.listSuitesForRef(Object.assign(Object.assign({}, repo), { ref: check_GITHUB_REF }));
-        const { data: checks } = yield gh.checks.listForRef(Object.assign(Object.assign({}, repo), { ref: check_GITHUB_REF }));
-        console.log(suites, checks);
-        const names = new Map();
-        return names;
-    });
-}
-
-// CONCATENATED MODULE: ./src/main.ts
-var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-process.on('unhandledRejection', handleError);
-run().catch(handleError);
-function run() {
-    return main_awaiter(this, void 0, void 0, function* () {
-        const envPrefix = Object(core.getInput)('env-prefix');
-        const token = Object(core.getInput)('github-token');
-        const github = new lib_github.GitHub(token, {});
-        const pr = yield getPrNumber(lib_github.context.repo, github);
-        const vars = new Map([
-            ...getBranch(lib_github.context),
-            ...getTag(lib_github.context),
-            ...yield getPR(pr, lib_github.context.repo),
-            ...yield check(lib_github.context, github),
-        ]);
-        for (const [key, value] of vars) {
-            Object(core.exportVariable)(`${envPrefix}${key}`, value);
-        }
-    });
-}
-function handleError(err) {
-    console.error(err);
-    if (err && err.message) {
-        Object(core.setFailed)(err.message);
-    }
-    else {
-        Object(core.setFailed)(`Unhandled error: ${err}`);
-    }
-}
-
-
-/***/ }),
-
 /***/ 692:
 /***/ (function(__unusedmodule, exports) {
 
@@ -11271,36 +11147,6 @@ function onceStrict (fn) {
 /******/ 		};
 /******/ 	}();
 /******/ 	
-/******/ 	/* webpack/runtime/define property getter */
-/******/ 	!function() {
-/******/ 		// define getter function for harmony exports
-/******/ 		var hasOwnProperty = Object.prototype.hasOwnProperty;
-/******/ 		__webpack_require__.d = function(exports, name, getter) {
-/******/ 			if(!hasOwnProperty.call(exports, name)) {
-/******/ 				Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 			}
-/******/ 		};
-/******/ 	}();
-/******/ 	
-/******/ 	/* webpack/runtime/create fake namespace object */
-/******/ 	!function() {
-/******/ 		// create a fake namespace object
-/******/ 		// mode & 1: value is a module id, require it
-/******/ 		// mode & 2: merge all properties of value into the ns
-/******/ 		// mode & 4: return value when already ns object
-/******/ 		// mode & 8|1: behave like require
-/******/ 		__webpack_require__.t = function(value, mode) {
-/******/ 			if(mode & 1) value = this(value);
-/******/ 			if(mode & 8) return value;
-/******/ 			if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 			var ns = Object.create(null);
-/******/ 			__webpack_require__.r(ns);
-/******/ 			Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 			if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 			return ns;
-/******/ 		};
-/******/ 	}();
-/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	!function() {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -11310,6 +11156,17 @@ function onceStrict (fn) {
 /******/ 				function getModuleExports() { return module; };
 /******/ 			__webpack_require__.d(getter, 'a', getter);
 /******/ 			return getter;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getter */
+/******/ 	!function() {
+/******/ 		// define getter function for harmony exports
+/******/ 		var hasOwnProperty = Object.prototype.hasOwnProperty;
+/******/ 		__webpack_require__.d = function(exports, name, getter) {
+/******/ 			if(!hasOwnProperty.call(exports, name)) {
+/******/ 				Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			}
 /******/ 		};
 /******/ 	}();
 /******/ 	

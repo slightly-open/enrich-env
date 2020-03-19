@@ -14,7 +14,7 @@ export function getBranch({ repo }: Context): Map<string, string> {
   }
   const branch = GITHUB_REF.slice(BRANCH_PREFIX.length)
   const branchSlag = nameSanitized(branch)
-  const branchTreeUrl = url(branchSlag, repo.owner, repo.repo)
+  const branchTreeUrl = url(branch, repo.owner, repo.repo)
 
   names.set('BRANCH', branch)
   names.set('BRANCH_SLAG', branchSlag)
