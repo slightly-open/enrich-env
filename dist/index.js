@@ -1469,7 +1469,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const token = Object(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)('github-token');
         const github = new _actions_github__WEBPACK_IMPORTED_MODULE_1__.GitHub(token, {});
-        console.log(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context);
+        console.log(JSON.stringify(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context));
     });
 }
 function handleError(err) {

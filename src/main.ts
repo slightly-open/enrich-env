@@ -12,7 +12,7 @@ async function run() {
   const token = getInput('github-token')
   const github = new GitHub(token, {})
 
-  console.log(context);
+  console.log(JSON.stringify(context));
 
 }
 
